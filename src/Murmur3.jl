@@ -25,12 +25,12 @@ module Murmur3
 
             len = uint32(length(data))
             remainder = len & 3
-            blocks = int(floor(len / 4))
-            block_array = pointer_to_array(convert(Ptr{Uint32}, data), blocks)
+            blocks = uint32(floor(len / 4))
+            pointer = convert(Ptr{Uint32}, data)
 
             # Body
             for next_block = 1:blocks
-                k = block_array[next_block]
+                k = unsafe_load(pointer, next_block)
                 k = uint32(k * c1)
                 k = @rotl32(k, 15)
                 k = uint32(k * c2)
@@ -83,14 +83,14 @@ module Murmur3
             len = uint32(length(data))
             remainder = len & 15
             blocks = int(floor(len / 16))
-            block_array = pointer_to_array(convert(Ptr{Uint32}, data), blocks*4)
+            pointer = convert(Ptr{Uint32}, data)
 
             # Body
             for next_block = 1:4:blocks*4
-                k1 = block_array[next_block]
-                k2 = block_array[next_block+1]
-                k3 = block_array[next_block+2]
-                k4 = block_array[next_block+3]
+                k1 = unsafe_load(pointer, next_block)
+                k2 = unsafe_load(pointer, next_block+1)
+                k3 = unsafe_load(pointer, next_block+2)
+                k4 = unsafe_load(pointer, next_block+3)
 
                 k1 = uint32(k1 * c1)
                 k1 = @rotl32(k1, 15)
@@ -240,13 +240,14 @@ module Murmur3
 
             len = uint64(length(data))
             remainder = len & 15
-            blocks = int(floor(len / 16))
-            block_array = pointer_to_array(convert(Ptr{Uint64}, data), blocks*2)
+            blocks = div(len, uint64(16))#uint64((len / uint64(16)))
+            pointer = convert(Ptr{Uint64}, data)
 
             # Body
-            for next_block = 1:2:blocks*2
-                k1 = block_array[next_block]
-                k2 = block_array[next_block+1]
+            iterations = uint64(blocks*2)
+            for next_block::Uint64 = uint64(1):uint64(2):iterations
+                k1 = unsafe_load(pointer, next_block)
+                k2 = unsafe_load(pointer, next_block+1)
 
                 k1 = uint64(k1 * c1)
                 k1 = @rotl64(k1, 31)

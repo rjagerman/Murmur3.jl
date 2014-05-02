@@ -6,9 +6,9 @@ Julia implementation of Murmur3 hashing.
 ##Performance
 Tested on Windows 7 (64 bit) with Intel core i5 3570K at 4222.25 Mhz.
 
-    C++:               1.000 Â± 0.000
-    Julia x86 32-bit:  1.159 Â± 0.003
-    Julia x86 128-bit: 1.425 Â± 0.007
-    Julia x64 128-bit: 1.458 Â± 0.008
+    Payload * Iterations  C++      Julia x86 32-bit   Julia x86 128-bit   Julia x64 128-bit
+    256   B * 25000000    1.000    1.488 ± 0.003      1.872 ± 0.003       2.353 ± 0.004
+    256 KiB * 25000       1.000    1.027 ± 0.001      1.253 ± 0.002       1.224 ± 0.003
+    256 MiB * 25          1.000    1.024 ± 0.002      1.247 ± 0.002       1.221 ± 0.003
 
-The 128 bit versions use 15 if-statements in the tail operation which causes the drop in performance. A jump/goto or switch/case (with fallthrough) would probably be much more efficient, but those are not available in Julia.
+
