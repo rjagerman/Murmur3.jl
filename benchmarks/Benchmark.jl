@@ -77,9 +77,9 @@ end
 
 function benchmark_scenarios(benchfunc, ref)
     print("  5   B: ")
-    repeat_and_measure(benchfunc, ref["pl_5B"], uint32(50000000), payload_5B)
+    repeat_and_measure(benchfunc, ref["pl_5B"], uint32(100000000), payload_5B)
     print(" 15   B: ")
-    repeat_and_measure(benchfunc, ref["pl_15B"], uint32(25000000), payload_15B)
+    repeat_and_measure(benchfunc, ref["pl_15B"], uint32(50000000), payload_15B)
     print("256   B: ")
     repeat_and_measure(benchfunc, ref["pl_256B"], uint32(5000000), payload_256B)
     print("256 KiB: ")
