@@ -32,8 +32,8 @@ string benchmark(char* payload, int size, unsigned int times, uint32_t* out, voi
 
 void benchmark_scenarios(char* payload, void(*fptr)(const void*, int, uint32_t, void*)) {
 	uint32_t* out = (uint32_t*)malloc(sizeof(uint32_t)* 4);
-	cout << "  \"pl_5B\": "     << benchmark(payload, 5, 50000000, out, fptr)      << "," << endl;
-	cout << "  \"pl_15B\": "    << benchmark(payload, 15, 25000000, out, fptr)     << "," << endl;
+	cout << "  \"pl_5B\": "     << benchmark(payload, 5, 100000000, out, fptr)      << "," << endl;
+	cout << "  \"pl_15B\": "    << benchmark(payload, 15, 50000000, out, fptr)     << "," << endl;
 	cout << "  \"pl_256B\": "   << benchmark(payload, 256, 5000000, out, fptr)     << "," << endl;
 	cout << "  \"pl_256KiB\": " << benchmark(payload, 256 * 1024, 5000, out, fptr) << "," << endl;
 	cout << "  \"pl_256MiB\": " << benchmark(payload, 256 * 1024 * 1024, 10, out, fptr)   << endl;
