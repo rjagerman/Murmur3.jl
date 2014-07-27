@@ -11,3 +11,4 @@ before_install:
 script:
   - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("Murmur3"))`); Pkg.pin("Murmur3"); Pkg.resolve()'
   - julia -e 'using Murmur3; @assert isdefined(:Murmur3); @assert typeof(Murmur3) === Module'
+  - julia ./test/runtests.jl
