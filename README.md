@@ -1,7 +1,18 @@
-Murmur3
-=======
+#Murmur3
+Julia implementation of Murmur3 hashing. Pull requests are very welcome!
 
-Julia implementation of Murmur3 hashing.
+##Usage
+Usage is very simple, first import Murmur3
+
+    using Murmur3
+
+Next, you can use the three hashing functions on Strings or Uint8 Arrays:
+
+    Murmur3.x86.hash32("Hello world!")
+    Murmur3.x86.hash128("This is Murmur3 hashing!")
+    Murmur3.x64.hash128("You can also add seeds!", 42)
+    
+The 32-bit function returns a 32 bit unsigned integer. The 128-bit variants return a 128 bit unsigned integer.
 
 ##Performance
 Tested on Windows 7 (64 bit) with Intel core i5 3570K at 4222.25 Mhz. Julia performance is measured relative to the reference C++ implementation performance.
