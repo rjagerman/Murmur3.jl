@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h>
+#include <string>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -14,11 +15,9 @@ string benchmark(char* payload, int size, unsigned int times, uint32_t* out, voi
 	output << "[";
 	for (unsigned int j = 0; j<10; j++) {
 		double start = omp_get_wtime();
-		uint32_t* outx86_32 = (uint32_t*)malloc(sizeof(uint32_t));
 		for (unsigned int i = 0; i<times; i++) {
-			fptr(payload, size, 0, outx86_32);
+			fptr(payload, size, 0, out);
 		}
-		free(outx86_32);
 		double end = omp_get_wtime();
 
 		if (j != 0) {
