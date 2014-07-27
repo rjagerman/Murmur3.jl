@@ -2,11 +2,11 @@
 Julia implementation of Murmur3 hashing. Pull requests are very welcome!
 
 ##Usage
-Usage is very simple, first import Murmur3
+Make sure Murmur3 is imported:
 
     using Murmur3
 
-Next, you can use the three hashing functions on Strings or Uint8 Arrays:
+Next, use the three hashing functions on Strings or Uint8 Arrays:
 
     Murmur3.x86.hash32("Hello world!")
     Murmur3.x86.hash128("This is Murmur3 hashing!")
