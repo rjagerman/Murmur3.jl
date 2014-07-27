@@ -8,6 +8,7 @@ before_install:
   - sudo add-apt-repository ppa:staticfloat/julianightlies -y
   - sudo apt-get update -qq -y
   - sudo apt-get install libpcre3-dev julia -y
+  - julia -e 'Pkg.add("JSON")'
 script:
   - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("Murmur3"))`); Pkg.pin("Murmur3"); Pkg.resolve()'
   - julia -e 'using Murmur3; @assert isdefined(:Murmur3); @assert typeof(Murmur3) === Module'
