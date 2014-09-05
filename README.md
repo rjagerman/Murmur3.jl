@@ -1,7 +1,7 @@
 #Murmur3
 Julia implementation of Murmur3 hashing. Pull requests are very welcome!
 
-[![Build Status](https://travis-ci.org/rjagerman/Murmur3.svg?branch=master)](https://travis-ci.org/rjagerman/Murmur3)
+[![Build Status](https://travis-ci.org/rjagerman/Murmur3.jl.svg?branch=master)](https://travis-ci.org/rjagerman/Murmur3.jl)
 
 ##Usage
 Make sure Murmur3 is imported:
