@@ -2,7 +2,7 @@ using Murmur3
 using Base.Test
 using JSON
 
-f = open("test/tests.json")
+f = open(joinpath(dirname(@__FILE__()), "tests.json"))
 tests = JSON.parse(readall(f))
 close(f)
 
