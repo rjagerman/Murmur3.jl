@@ -29,7 +29,7 @@ module Murmur3
 
             len = uint32(length(data))
             remainder = len & 3
-            blocks = uint32(floor(len / 4))
+            blocks = div(len, 4)
             pointer = convert(Ptr{Uint32}, reinterpret(Uint32, data))
 
             # Body
@@ -94,7 +94,7 @@ module Murmur3
 
             len = uint32(length(data))
             remainder = len & 15
-            blocks = int(floor(len / 16))
+            blocks = div(len, 16)
             pointer = convert(Ptr{Uint32}, reinterpret(Uint32, data))
 
             # Body
@@ -264,7 +264,7 @@ module Murmur3
 
             len = uint64(length(data))
             remainder = len & 15
-            blocks = div(len, uint64(16))#uint64((len / uint64(16)))
+            blocks = div(len, uint64(16))
             pointer = convert(Ptr{Uint64}, reinterpret(Uint64, data))
 
             # Body
