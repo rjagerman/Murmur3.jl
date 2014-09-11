@@ -30,11 +30,11 @@ module Murmur3
             len = uint32(length(data))
             remainder = len & 3
             blocks = div(len, 4)
-            pointer = convert(Ptr{Uint32}, reinterpret(Uint32, data))
+            p = convert(Ptr{Uint32}, pointer(data))
 
             # Body
             for next_block = 1:blocks
-                k = unsafe_load(pointer, next_block)
+                k = unsafe_load(p, next_block)
                 k = uint32(k * c1)
                 k = @rotl32(k, 15)
                 k = uint32(k * c2)
@@ -95,14 +95,14 @@ module Murmur3
             len = uint32(length(data))
             remainder = len & 15
             blocks = div(len, 16)
-            pointer = convert(Ptr{Uint32}, reinterpret(Uint32, data))
+            p = convert(Ptr{Uint32}, pointer(data))
 
             # Body
             for next_block = 1:4:blocks*4
-                k1 = unsafe_load(pointer, next_block)
-                k2 = unsafe_load(pointer, next_block+1)
-                k3 = unsafe_load(pointer, next_block+2)
-                k4 = unsafe_load(pointer, next_block+3)
+                k1 = unsafe_load(p, next_block)
+                k2 = unsafe_load(p, next_block+1)
+                k3 = unsafe_load(p, next_block+2)
+                k4 = unsafe_load(p, next_block+3)
 
                 k1 = uint32(k1 * c1)
                 k1 = @rotl32(k1, 15)
@@ -265,13 +265,13 @@ module Murmur3
             len = uint64(length(data))
             remainder = len & 15
             blocks = div(len, uint64(16))
-            pointer = convert(Ptr{Uint64}, reinterpret(Uint64, data))
+            p = convert(Ptr{Uint64}, pointer(data))
 
             # Body
             iterations = uint64(blocks*2)
             for next_block::Uint64 = uint64(1):uint64(2):iterations
-                k1 = unsafe_load(pointer, next_block)
-                k2 = unsafe_load(pointer, next_block+1)
+                k1 = unsafe_load(p, next_block)
+                k2 = unsafe_load(p, next_block+1)
 
                 k1 = uint64(k1 * c1)
                 k1 = @rotl64(k1, 31)
