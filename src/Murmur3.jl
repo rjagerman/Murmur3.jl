@@ -1,6 +1,10 @@
+
+
 module Murmur3
 
     module x86
+	
+		using Switch
 
         macro rotl32(var, value)
             :(($var << $value) | ($var >> $(32-value)))
@@ -25,12 +29,12 @@ module Murmur3
 
             len = uint32(length(data))
             remainder = len & 3
-            blocks = uint32(floor(len / 4))
-            pointer = convert(Ptr{Uint32}, reinterpret(Uint32, data))
+            blocks = div(len, 4)
+            p = convert(Ptr{Uint32}, pointer(data))
 
             # Body
             for next_block = 1:blocks
-                k = unsafe_load(pointer, next_block)
+                k = unsafe_load(p, next_block)
                 k = uint32(k * c1)
                 k = @rotl32(k, 15)
                 k = uint32(k * c2)
@@ -43,13 +47,21 @@ module Murmur3
             # Tail
             k = uint32(0)
             last = blocks*4 + 1
-            if remainder == 3
-                k = (uint32(data[last + 2]) << 16) | (uint32(data[last + 1]) << 8) | uint32(data[last])
-            elseif remainder == 2
-                k = (uint32(data[last + 1]) << 8) | uint32(data[last])
-            elseif remainder == 1
-                k = uint32(data[last])
-            end
+			@switch remainder begin
+				@case 3
+					k |= uint32(data[last + 2]) << 16
+				@case 2
+					k |= uint32(data[last + 1]) << 8
+				@case 1
+					k |= uint32(data[last])
+			end
+            #if remainder == 3
+            #    k = (uint32(data[last + 2]) << 16) | (uint32(data[last + 1]) << 8) | uint32(data[last])
+            #elseif remainder == 2
+            #    k = (uint32(data[last + 1]) << 8) | uint32(data[last])
+            #elseif remainder == 1
+            #    k = uint32(data[last])
+            #end
             k = uint32(k * c1)
             k = @rotl32(k, 15)
             k = uint32(k * c2)
@@ -82,15 +94,15 @@ module Murmur3
 
             len = uint32(length(data))
             remainder = len & 15
-            blocks = int(floor(len / 16))
-            pointer = convert(Ptr{Uint32}, reinterpret(Uint32, data))
+            blocks = div(len, 16)
+            p = convert(Ptr{Uint32}, pointer(data))
 
             # Body
             for next_block = 1:4:blocks*4
-                k1 = unsafe_load(pointer, next_block)
-                k2 = unsafe_load(pointer, next_block+1)
-                k3 = unsafe_load(pointer, next_block+2)
-                k4 = unsafe_load(pointer, next_block+3)
+                k1 = unsafe_load(p, next_block)
+                k2 = unsafe_load(p, next_block+1)
+                k3 = unsafe_load(p, next_block+2)
+                k4 = unsafe_load(p, next_block+3)
 
                 k1 = uint32(k1 * c1)
                 k1 = @rotl32(k1, 15)
@@ -136,45 +148,55 @@ module Murmur3
             k2 = uint32(0)
             k3 = uint32(0)
             k4 = uint32(0)
-
-            if remainder >= 15; k4 $= uint32(data[last+15]) << 16; end
-            if remainder >= 14; k4 $= uint32(data[last+14]) << 8; end
-            if remainder >= 13; k4 $= uint32(data[last+13]) << 0
-                k4 = uint32(k4 * c4)
-                k4 = @rotl32(k4, 18)
-                k4 = uint32(k4 * c1)
-                h4 $= k4
-            end
-
-            if remainder >= 12; k3 $= uint32(data[last+12]) << 24; end
-            if remainder >= 11; k3 $= uint32(data[last+11]) << 16; end
-            if remainder >= 10; k3 $= uint32(data[last+10]) << 8; end
-            if remainder >=  9; k3 $= uint32(data[last+ 9]) << 0
-                k3 = uint32(k3 * c3)
-                k3 = @rotl32(k3, 17)
-                k3 = uint32(k3 * c4)
-                h3 $= k3
-            end
-
-            if remainder >= 8; k2 $= uint32(data[last+8]) << 24; end
-            if remainder >= 7; k2 $= uint32(data[last+7]) << 16; end
-            if remainder >= 6; k2 $= uint32(data[last+6]) << 8; end
-            if remainder >= 5; k2 $= uint32(data[last+5]) << 0
-                k2 = uint32(k2 * c2)
-                k2 = @rotl32(k2, 16)
-                k2 = uint32(k2 * c3)
-                h2 $= k2
-            end
-
-            if remainder >= 4; k1 $= uint32(data[last+4]) << 24; end
-            if remainder >= 3; k1 $= uint32(data[last+3]) << 16; end
-            if remainder >= 2; k1 $= uint32(data[last+2]) << 8; end
-            if remainder >= 1; k1 $= uint32(data[last+1]) << 0
-                k1 = uint32(k1 * c1)
-                k1 = @rotl32(k1, 15)
-                k1 = uint32(k1 * c2)
-                h1 $= k1
-            end
+			
+			@switch remainder begin
+				@case 15
+					k4 $= uint32(data[last+15]) << 16
+				@case 14
+					k4 $= uint32(data[last+14]) << 8
+				@case 13
+					k4 $= uint32(data[last+13])
+					k4 = uint32(k4 * c4)
+					k4 = @rotl32(k4, 18)
+					k4 = uint32(k4 * c1)
+					h4 $= k4
+				@case 12
+					k3 $= uint32(data[last+12]) << 24
+				@case 11
+					k3 $= uint32(data[last+11]) << 16
+				@case 10
+					k3 $= uint32(data[last+10]) << 8
+				@case 9
+					k3 $= uint32(data[last+9])
+					k3 = uint32(k3 * c3)
+					k3 = @rotl32(k3, 17)
+					k3 = uint32(k3 * c4)
+					h3 $= k3
+				@case 8
+					k2 $= uint32(data[last+8]) << 24
+				@case 7
+					k2 $= uint32(data[last+7]) << 16
+				@case 6
+					k2 $= uint32(data[last+6]) << 8
+				@case 5
+					k2 $= uint32(data[last+5])
+					k2 = uint32(k2 * c2)
+					k2 = @rotl32(k2, 16)
+					k2 = uint32(k2 * c3)
+					h2 $= k2
+				@case 4
+					k1 $= uint32(data[last+4]) << 24
+				@case 3
+					k1 $= uint32(data[last+3]) << 16
+				@case 2
+					k1 $= uint32(data[last+2]) << 8
+				@case 1
+					k1 $= uint32(data[last+1])
+					k1 = uint32(k1 * c1)
+					k1 = @rotl32(k1, 15)
+					k1 = uint32(k1 * c2)
+					h1 $= k1
+			end
 
             # Finalization
             h1 $= len
@@ -213,6 +235,8 @@ module Murmur3
     end
 
     module x64
+	
+		using Switch
 
         macro rotl64(var, value)
             :(($var << $value) | ($var >> $(64-value)))
@@ -240,14 +264,14 @@ module Murmur3
 
             len = uint64(length(data))
             remainder = len & 15
-            blocks = div(len, uint64(16))#uint64((len / uint64(16)))
-            pointer = convert(Ptr{Uint64}, reinterpret(Uint64, data))
+            blocks = div(len, uint64(16))
+            p = convert(Ptr{Uint64}, pointer(data))
 
             # Body
             iterations = uint64(blocks*2)
             for next_block::Uint64 = uint64(1):uint64(2):iterations
-                k1 = unsafe_load(pointer, next_block)
-                k2 = unsafe_load(pointer, next_block+1)
+                k1 = unsafe_load(p, next_block)
+                k2 = unsafe_load(p, next_block+1)
 
                 k1 = uint64(k1 * c1)
                 k1 = @rotl64(k1, 31)
@@ -272,32 +296,47 @@ module Murmur3
             last = blocks*16
             k1 = uint64(0)
             k2 = uint64(0)
-            if remainder >= 15; k2 $= uint64(data[last+15]) << 48; end
-            if remainder >= 14; k2 $= uint64(data[last+14]) << 40; end
-            if remainder >= 13; k2 $= uint64(data[last+13]) << 32; end
-            if remainder >= 12; k2 $= uint64(data[last+12]) << 24; end
-            if remainder >= 11; k2 $= uint64(data[last+11]) << 16; end
-            if remainder >= 10; k2 $= uint64(data[last+10]) << 8; end
-            if remainder >=  9; k2 $= uint64(data[last+ 9]) << 0
-                k2 = uint64(k2 * c2)
-                k2 = @rotl64(k2, 33)
-                k2 = uint64(k2 * c1)
-                h2 $= k2
-            end
-
-            if remainder >= 8; k1 $= uint64(data[last+8]) << 56; end
-            if remainder >= 7; k1 $= uint64(data[last+7]) << 48; end
-            if remainder >= 6; k1 $= uint64(data[last+6]) << 40; end
-            if remainder >= 5; k1 $= uint64(data[last+5]) << 32; end
-            if remainder >= 4; k1 $= uint64(data[last+4]) << 24; end
-            if remainder >= 3; k1 $= uint64(data[last+3]) << 16; end
-            if remainder >= 2; k1 $= uint64(data[last+2]) << 8; end
-            if remainder >= 1; k1 $= uint64(data[last+1]) << 0
-                k1 = uint64(k1 * c1)
-                k1 = @rotl64(k1, 31)
-                k1 = uint64(k1 * c2)
-                h1 $= k1
-            end
+			
+			@switch remainder begin
+				@case 15
+					k2 $= uint64(data[last+15]) << 48
+				@case 14
+					k2 $= uint64(data[last+14]) << 40
+				@case 13
+					k2 $= uint64(data[last+13]) << 32
+				@case 12
+					k2 $= uint64(data[last+12]) << 24
+				@case 11
+					k2 $= uint64(data[last+11]) << 16
+				@case 10
+					k2 $= uint64(data[last+10]) << 8
+				@case 9
+					k2 $= uint64(data[last+9]) << 0
+					k2 = uint64(k2 * c2)
+					k2 = @rotl64(k2, 33)
+					k2 = uint64(k2 * c1)
+					h2 $= k2
+				@case 8
+					k1 $= uint64(data[last+8]) << 56
+				@case 7
+					k1 $= uint64(data[last+7]) << 48
+				@case 6
+					k1 $= uint64(data[last+6]) << 40
+				@case 5
+					k1 $= uint64(data[last+5]) << 32
+				@case 4
+					k1 $= uint64(data[last+4]) << 24
+				@case 3
+					k1 $= uint64(data[last+3]) << 16
+				@case 2
+					k1 $= uint64(data[last+2]) << 8
+				@case 1
+					k1 $= uint64(data[last+1])
+					k1 = uint64(k1 * c1)
+					k1 = @rotl64(k1, 31)
+					k1 = uint64(k1 * c2)
+					h1 $= k1
+			end
 
             # Finalization
             h1 $= uint64(len)
