@@ -52,16 +52,10 @@ module Murmur3
 					k |= uint32(data[last + 2]) << 16
 				@case 2
 					k |= uint32(data[last + 1]) << 8
-				@case 1
+                @case 1
 					k |= uint32(data[last])
 			end
-            #if remainder == 3
-            #    k = (uint32(data[last + 2]) << 16) | (uint32(data[last + 1]) << 8) | uint32(data[last])
-            #elseif remainder == 2
-            #    k = (uint32(data[last + 1]) << 8) | uint32(data[last])
-            #elseif remainder == 1
-            #    k = uint32(data[last])
-            #end
+
             k = uint32(k * c1)
             k = @rotl32(k, 15)
             k = uint32(k * c2)
@@ -148,55 +142,55 @@ module Murmur3
             k2 = uint32(0)
             k3 = uint32(0)
             k4 = uint32(0)
-			
-			@switch remainder begin
-				@case 15
-					k4 $= uint32(data[last+15]) << 16
-				@case 14
-					k4 $= uint32(data[last+14]) << 8
-				@case 13
-					k4 $= uint32(data[last+13])
-					k4 = uint32(k4 * c4)
-					k4 = @rotl32(k4, 18)
-					k4 = uint32(k4 * c1)
-					h4 $= k4
-				@case 12
-					k3 $= uint32(data[last+12]) << 24
-				@case 11
-					k3 $= uint32(data[last+11]) << 16
-				@case 10
-					k3 $= uint32(data[last+10]) << 8
-				@case 9
-					k3 $= uint32(data[last+9])
-					k3 = uint32(k3 * c3)
-					k3 = @rotl32(k3, 17)
-					k3 = uint32(k3 * c4)
-					h3 $= k3
-				@case 8
-					k2 $= uint32(data[last+8]) << 24
-				@case 7
-					k2 $= uint32(data[last+7]) << 16
-				@case 6
-					k2 $= uint32(data[last+6]) << 8
-				@case 5
-					k2 $= uint32(data[last+5])
-					k2 = uint32(k2 * c2)
-					k2 = @rotl32(k2, 16)
-					k2 = uint32(k2 * c3)
-					h2 $= k2
-				@case 4
-					k1 $= uint32(data[last+4]) << 24
-				@case 3
-					k1 $= uint32(data[last+3]) << 16
-				@case 2
-					k1 $= uint32(data[last+2]) << 8
-				@case 1
-					k1 $= uint32(data[last+1])
-					k1 = uint32(k1 * c1)
-					k1 = @rotl32(k1, 15)
-					k1 = uint32(k1 * c2)
-					h1 $= k1
-			end
+            
+            @switch remainder begin
+                @case 15
+                    k4 $= uint32(data[last+15]) << 16
+                @case 14
+                    k4 $= uint32(data[last+14]) << 8
+                @case 13
+                    k4 $= uint32(data[last+13])
+                    k4 = uint32(k4 * c4)
+                    k4 = @rotl32(k4, 18)
+                    k4 = uint32(k4 * c1)
+                    h4 $= k4
+                @case 12
+                    k3 $= uint32(data[last+12]) << 24
+                @case 11
+                    k3 $= uint32(data[last+11]) << 16
+                @case 10
+                    k3 $= uint32(data[last+10]) << 8
+                @case 9
+                    k3 $= uint32(data[last+9])
+                    k3 = uint32(k3 * c3)
+                    k3 = @rotl32(k3, 17)
+                    k3 = uint32(k3 * c4)
+                    h3 $= k3
+                @case 8
+                    k2 $= uint32(data[last+8]) << 24
+                @case 7
+                    k2 $= uint32(data[last+7]) << 16
+                @case 6
+                    k2 $= uint32(data[last+6]) << 8
+                @case 5
+                    k2 $= uint32(data[last+5])
+                    k2 = uint32(k2 * c2)
+                    k2 = @rotl32(k2, 16)
+                    k2 = uint32(k2 * c3)
+                    h2 $= k2
+                @case 4
+                    k1 $= uint32(data[last+4]) << 24
+                @case 3
+                    k1 $= uint32(data[last+3]) << 16
+                @case 2
+                    k1 $= uint32(data[last+2]) << 8
+                @case 1
+                    k1 $= uint32(data[last+1])
+                    k1 = uint32(k1 * c1)
+                    k1 = @rotl32(k1, 15)
+                    k1 = uint32(k1 * c2)
+                    h1 $= k1
+            end
 
             # Finalization
             h1 $= len
@@ -235,8 +229,8 @@ module Murmur3
     end
 
     module x64
-	
-		using Switch
+    
+        using Switch
 
         macro rotl64(var, value)
             :(($var << $value) | ($var >> $(64-value)))
@@ -296,47 +290,47 @@ module Murmur3
             last = blocks*16
             k1 = uint64(0)
             k2 = uint64(0)
-			
-			@switch remainder begin
-				@case 15
-					k2 $= uint64(data[last+15]) << 48
-				@case 14
-					k2 $= uint64(data[last+14]) << 40
-				@case 13
-					k2 $= uint64(data[last+13]) << 32
-				@case 12
-					k2 $= uint64(data[last+12]) << 24
-				@case 11
-					k2 $= uint64(data[last+11]) << 16
-				@case 10
-					k2 $= uint64(data[last+10]) << 8
-				@case 9
-					k2 $= uint64(data[last+9]) << 0
-					k2 = uint64(k2 * c2)
-					k2 = @rotl64(k2, 33)
-					k2 = uint64(k2 * c1)
-					h2 $= k2
-				@case 8
-					k1 $= uint64(data[last+8]) << 56
-				@case 7
-					k1 $= uint64(data[last+7]) << 48
-				@case 6
-					k1 $= uint64(data[last+6]) << 40
-				@case 5
-					k1 $= uint64(data[last+5]) << 32
-				@case 4
-					k1 $= uint64(data[last+4]) << 24
-				@case 3
-					k1 $= uint64(data[last+3]) << 16
-				@case 2
-					k1 $= uint64(data[last+2]) << 8
-				@case 1
-					k1 $= uint64(data[last+1])
-					k1 = uint64(k1 * c1)
-					k1 = @rotl64(k1, 31)
-					k1 = uint64(k1 * c2)
-					h1 $= k1
-			end
+            
+            @switch remainder begin
+                @case 15
+                    k2 $= uint64(data[last+15]) << 48
+                @case 14
+                    k2 $= uint64(data[last+14]) << 40
+                @case 13
+                    k2 $= uint64(data[last+13]) << 32
+                @case 12
+                    k2 $= uint64(data[last+12]) << 24
+                @case 11
+                    k2 $= uint64(data[last+11]) << 16
+                @case 10
+                    k2 $= uint64(data[last+10]) << 8
+                @case 9
+                    k2 $= uint64(data[last+9]) << 0
+                    k2 = uint64(k2 * c2)
+                    k2 = @rotl64(k2, 33)
+                    k2 = uint64(k2 * c1)
+                    h2 $= k2
+                @case 8
+                    k1 $= uint64(data[last+8]) << 56
+                @case 7
+                    k1 $= uint64(data[last+7]) << 48
+                @case 6
+                    k1 $= uint64(data[last+6]) << 40
+                @case 5
+                    k1 $= uint64(data[last+5]) << 32
+                @case 4
+                    k1 $= uint64(data[last+4]) << 24
+                @case 3
+                    k1 $= uint64(data[last+3]) << 16
+                @case 2
+                    k1 $= uint64(data[last+2]) << 8
+                @case 1
+                    k1 $= uint64(data[last+1])
+                    k1 = uint64(k1 * c1)
+                    k1 = @rotl64(k1, 31)
+                    k1 = uint64(k1 * c2)
+                    h1 $= k1
+            end
 
             # Finalization
             h1 $= uint64(len)
