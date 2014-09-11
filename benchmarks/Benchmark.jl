@@ -17,23 +17,23 @@ end
 
 # Load the payloads
 f = open("benchmarks/data.txt", "r")
-payload_5B = read(f, Array(Uint8,5))
+payload_5B = read!(f, Array(Uint8,5))
 close(f)
 
 f = open("benchmarks/data.txt", "r")
-payload_15B = read(f, Array(Uint8,15))
+payload_15B = read!(f, Array(Uint8,15))
 close(f)
 
 f = open("benchmarks/data.txt", "r")
-payload_256B = read(f, Array(Uint8,256))
+payload_256B = read!(f, Array(Uint8,256))
 close(f)
 
 f = open("benchmarks/data.txt", "r")
-payload_256KiB = read(f, Array(Uint8,256 * 1024))
+payload_256KiB = read!(f, Array(Uint8,256 * 1024))
 close(f)
 
 f = open("benchmarks/data.txt", "r")
-payload_256MiB = read(f, Array(Uint8,256 * 1024 * 1024))
+payload_256MiB = read!(f, Array(Uint8,256 * 1024 * 1024))
 close(f)
 
 # Load the C++ reference times
@@ -77,15 +77,15 @@ end
 
 function benchmark_scenarios(benchfunc, ref)
     print("  5   B: ")
-    repeat_and_measure(benchfunc, ref["pl_5B"], uint32(100000000), payload_5B)
+    repeat_and_measure(benchfunc, float(ref["pl_5B"]), uint32(100000000), payload_5B)
     print(" 15   B: ")
-    repeat_and_measure(benchfunc, ref["pl_15B"], uint32(50000000), payload_15B)
+    repeat_and_measure(benchfunc, float(ref["pl_15B"]), uint32(50000000), payload_15B)
     print("256   B: ")
-    repeat_and_measure(benchfunc, ref["pl_256B"], uint32(5000000), payload_256B)
+    repeat_and_measure(benchfunc, float(ref["pl_256B"]), uint32(5000000), payload_256B)
     print("256 KiB: ")
-    repeat_and_measure(benchfunc, ref["pl_256KiB"], uint32(5000), payload_256KiB)
+    repeat_and_measure(benchfunc, float(ref["pl_256KiB"]), uint32(5000), payload_256KiB)
     print("256 MiB: ")
-    repeat_and_measure(benchfunc, ref["pl_256MiB"], uint32(10), payload_256MiB)
+    repeat_and_measure(benchfunc, float(ref["pl_256MiB"]), uint32(10), payload_256MiB)
 end
 
 println("x86 32-bit")
