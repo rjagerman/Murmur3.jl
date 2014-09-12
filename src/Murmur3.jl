@@ -1,10 +1,8 @@
-
-
 module Murmur3
 
     module x86
-	
-		using Switch
+
+        using Switch
 
         macro rotl32(var, value)
             :(($var << $value) | ($var >> $(32-value)))
@@ -47,14 +45,14 @@ module Murmur3
             # Tail
             k = uint32(0)
             last = blocks*4 + 1
-			@switch remainder begin
-				@case 3
-					k |= uint32(data[last + 2]) << 16
-				@case 2
-					k |= uint32(data[last + 1]) << 8
+            @switch remainder begin
+                @case 3
+                    k |= uint32(data[last + 2]) << 16
+                @case 2
+                    k |= uint32(data[last + 1]) << 8
                 @case 1
-					k |= uint32(data[last])
-			end
+                    k |= uint32(data[last])
+            end
 
             k = uint32(k * c1)
             k = @rotl32(k, 15)
@@ -142,7 +140,7 @@ module Murmur3
             k2 = uint32(0)
             k3 = uint32(0)
             k4 = uint32(0)
-            
+
             @switch remainder begin
                 @case 15
                     k4 $= uint32(data[last+15]) << 16
@@ -229,7 +227,7 @@ module Murmur3
     end
 
     module x64
-    
+
         using Switch
 
         macro rotl64(var, value)
@@ -290,7 +288,7 @@ module Murmur3
             last = blocks*16
             k1 = uint64(0)
             k2 = uint64(0)
-            
+
             @switch remainder begin
                 @case 15
                     k2 $= uint64(data[last+15]) << 48
@@ -356,5 +354,5 @@ module Murmur3
         hash128(data::String) = hash128(convert(Array{Uint8}, data), uint64(0))
 
     end
-    
+
 end
