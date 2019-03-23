@@ -1,22 +1,20 @@
-using Murmur3
-using Base.Test
-using JSON
+using Murmur3, Test, JSON
 
 # Test JSON hash examples
 f = open(joinpath(dirname(@__FILE__()), "tests.json"))
-tests = JSON.parse(readall(f))
+tests = JSON.parse(f)
 close(f)
 
 for test in tests
 
     if "seed" in keys(test)
-        x86_32 = lpad(hex(Murmur3.x86.hash32(test["text"], test["seed"])), 8, "0")
-        x86_128 = lpad(hex(Murmur3.x86.hash128(test["text"], test["seed"])), 32, "0")
-        x64_128 = lpad(hex(Murmur3.x64.hash128(test["text"], test["seed"])), 32, "0")
+        x86_32 = lpad(string(Murmur3.x86.hash32(test["text"], test["seed"]), base=16), 8, "0")
+        x86_128 = lpad(string(Murmur3.x86.hash128(test["text"], test["seed"]), base=16), 32, "0")
+        x64_128 = lpad(string(Murmur3.x64.hash128(test["text"], test["seed"]), base=16), 32, "0")
     else
-        x86_32 = lpad(hex(Murmur3.x86.hash32(test["text"])), 8, "0")
-        x86_128 = lpad(hex(Murmur3.x86.hash128(test["text"])), 32, "0")
-        x64_128 = lpad(hex(Murmur3.x64.hash128(test["text"])), 32, "0")
+        x86_32 = lpad(string(Murmur3.x86.hash32(test["text"]), base=16), 8, "0")
+        x86_128 = lpad(string(Murmur3.x86.hash128(test["text"]), base=16), 32, "0")
+        x64_128 = lpad(string(Murmur3.x64.hash128(test["text"]), base=16), 32, "0")
     end
 
     @test test["x86_32"] == x86_32
