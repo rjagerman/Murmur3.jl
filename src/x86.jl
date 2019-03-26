@@ -1,60 +1,61 @@
 module x86
 
-function rotl32(var::Integer, value::Integer)
-    (var << value) | (var >> (32-value))
+@inline function rotl32(var::Integer, value::Integer)
+    (var << value) | ((var & 0xffffffff) >> (32-value))
 end
 
-function fmix32(value::Integer)
-    value ⊻= (value >> 16)
-    value = UInt32(value * UInt32(0x85ebca6b))
-    value ⊻= (value >> 13)
-    value = UInt32(value * UInt32(0xc2b2ae35))
-    value ⊻= (value >> 16)
+@inline function fmix32(value::Integer)
+    value ⊻= ((value & 0xffffffff) >> 16)
+    value *= 0x85ebca6b
+    value ⊻= ((value & 0xffffffff) >> 13)
+    value *= 0xc2b2ae35
+    value ⊻= ((value & 0xffffffff) >> 16)
 end
 
-function hash32(data::Array{UInt8}, seed::UInt32)
-    c1 = UInt32(0xcc9e2d51)
-    c2 = UInt32(0x1b873593)
+function hash32(data::Array{UInt8,1}, seed::UInt32=zero(UInt32))
+    c1 = 0xcc9e2d51
+    c2 = 0x1b873593
     h = seed
 
-    len = UInt32(length(data))
-    remainder = len & 3
+    len = length(data)
     blocks = div(len, 4)
     p = convert(Ptr{UInt32}, pointer(data))
 
     # Body
-    for next_block = 1:blocks
-        k = UInt32(unsafe_load(p, next_block))
-        k = k * c1
+    for next_block ∈ 1:blocks
+        k = big(unsafe_load(p, next_block))
+        k *= c1
         k = rotl32(k, 15)
-        k = k * c2
+        k *= c2
 
         h ⊻= k
         h = rotl32(h, 13)
-        h = h * UInt32(5) + UInt32(0xe6546b64)
+        h = h * 5 + 0xe6546b64
     end
 
     # Tail
-    k = zero(UInt32)
-    last_ = blocks*4 + 1
+    k = zero(BigInt)
+    remainder = len & 3
+    last_ = blocks * 4
     if remainder == 3
-        k |= UInt32(data[last_ + 2]) << 16
-    elseif remainder ==  2
-        k |= UInt32(data[last_ + 1]) << 8
-    elseif remainder ==  1
-        k |= UInt32(data[last_])
+        k |= (UInt32(data[last_ + 3]) & 0xff) << 16
     end
-
-    k = k * c1
-    k = rotl32(k, 15)
-    k = k * c2
-    h ⊻= k
+    if remainder ∈ 2:3
+        k |= (UInt32(data[last_ + 2]) & 0xff) << 8
+    end
+    if remainder ∈ 1:3
+        k |= UInt32(data[last_ + 1]) & 0xff
+        k *= c1
+        k = rotl32(k, 15)
+        k *= c2
+        h ⊻= k
+    end
 
     # Finalization
     h ⊻= len
     h = fmix32(h)
 
-    return h
+    h & 0xffffffff
 
 end
 
